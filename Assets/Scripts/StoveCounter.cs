@@ -1,25 +1,23 @@
-// ±ØÐëÌí¼ÓSystemÃüÃû¿Õ¼ä£¨EventArgs»ùÀàÒÀÀµ£©
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Systemï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ä£¨EventArgsï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using static CuttingCounter;
 
 public class StoveCounter : BaseCounter, IHasProgress
 {
-    // 1. ½ø¶È±ä¸üÊÂ¼þ£¨ÊµÏÖIHasProgress½Ó¿Ú£©
+    // 1. ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Êµï¿½ï¿½IHasProgressï¿½Ó¿Ú£ï¿½
     public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
-    // 2. ×´Ì¬±ä¸üÊÂ¼þ£¨¶ÀÁ¢ÊÂ¼þ£¬²ÎÊýÀàÓïÒåÐÞÕý£©
+    // 2. ×´Ì¬ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public event EventHandler<OnStateChangedEventArgs> OnStateChanged;
 
-    // ÐÞÕý£º×´Ì¬±ä¸üµÄ²ÎÊýÀà£¨²»ÔÙºÍ½ø¶È²ÎÊýÀàÖØÃû£©
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½à£¨ï¿½ï¿½ï¿½ÙºÍ½ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public class OnStateChangedEventArgs : EventArgs
     {
         public State state;
     }
 
-    // Â¯Ôî×´Ì¬Ã¶¾Ù
+    // Â¯ï¿½ï¿½×´Ì¬Ã¶ï¿½ï¿½
     public enum State
     {
         Idle,
@@ -44,62 +42,62 @@ public class StoveCounter : BaseCounter, IHasProgress
 
     private void Update()
     {
-        if (!HasKitchenObject()) return; // ÎÞÎïÆ·Ê±Ö±½Ó·µ»Ø£¬¼ò»¯Âß¼­
+        if (!HasKitchenObject()) return; // ï¿½ï¿½ï¿½ï¿½Æ·Ê±Ö±ï¿½Ó·ï¿½ï¿½Ø£ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
 
         switch (state)
         {
             case State.Idle:
-                // ÏÐÖÃ×´Ì¬£ºÖØÖÃ½ø¶ÈÌõ
+                // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½
                 TriggerProgressChanged(0f);
                 break;
             case State.Frying:
                 fryingTimer += Time.deltaTime;
-                // ÊµÊ±´¥·¢½ø¶È±ä¸ü£¨ºËÐÄÐÞ¸´£º½ø¶ÈÌõÊµÊ±¸üÐÂ£©
+                // ÊµÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÊµÊ±ï¿½ï¿½ï¿½Â£ï¿½
                 TriggerProgressChanged(fryingTimer / fryingRecipeSO.fryingTimerMax);
 
                 if (fryingTimer > fryingRecipeSO.fryingTimerMax)
                 {
-                    // ÓÍÕ¨Íê³É£ºÌæ»»ÎïÆ·
+                    // ï¿½ï¿½Õ¨ï¿½ï¿½É£ï¿½ï¿½æ»»ï¿½ï¿½Æ·
                     GetKitchenObject().DestroySelf();
                     KitchenObject.SpawnKitchenObject(fryingRecipeSO.output, this);
 
                     Debug.Log("Fried");
                     state = State.Fried;
                     burningTimer = 0f;
-                    // ¿ÕÖµ±£»¤£º»ñÈ¡È¼ÉÕÅä·½Ê§°ÜÊ±µÄÈÝ´í
+                    // ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡È¼ï¿½ï¿½ï¿½ä·½Ê§ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ý´ï¿½
                     burningRecipeSO = GetBurningRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
                     if (burningRecipeSO == null)
                     {
-                        Debug.LogWarning($"[{gameObject.name}] ÎïÆ·{GetKitchenObject().GetKitchenObjectSO().name}ÎÞÈ¼ÉÕÅä·½£¡");
-                        state = State.Idle; // ÎÞÅä·½Ê±»Øµ½ÏÐÖÃ
+                        Debug.LogWarning($"[{gameObject.name}] ï¿½ï¿½Æ·{GetKitchenObject().GetKitchenObjectSO().name}ï¿½ï¿½È¼ï¿½ï¿½ï¿½ä·½ï¿½ï¿½");
+                        state = State.Idle; // ï¿½ï¿½ï¿½ä·½Ê±ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
                     }
-                    // ´¥·¢×´Ì¬±ä¸üÊÂ¼þ
+                    // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
                     TriggerStateChanged();
                 }
                 break;
             case State.Fried:
-                if (burningRecipeSO == null) break; // ¿ÕÖµ±£»¤
+                if (burningRecipeSO == null) break; // ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½
 
                 burningTimer += Time.deltaTime;
-                // ÊµÊ±´¥·¢È¼ÉÕ½ø¶È±ä¸ü
+                // ÊµÊ±ï¿½ï¿½ï¿½ï¿½È¼ï¿½Õ½ï¿½ï¿½È±ï¿½ï¿½
                 TriggerProgressChanged(burningTimer / burningRecipeSO.burningTimerMax);
 
                 if (burningTimer > burningRecipeSO.burningTimerMax)
                 {
-                    // ÉÕ½¹Íê³É£ºÌæ»»ÎïÆ·
+                    // ï¿½Õ½ï¿½ï¿½ï¿½É£ï¿½ï¿½æ»»ï¿½ï¿½Æ·
                     GetKitchenObject().DestroySelf();
                     KitchenObject.SpawnKitchenObject(burningRecipeSO.output, this);
 
                     Debug.Log("Burned");
                     state = State.Burned;
-                    // ÉÕ½¹ºó½ø¶ÈÌõ¹éÁã
+                    // ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     TriggerProgressChanged(0f);
-                    // ´¥·¢×´Ì¬±ä¸üÊÂ¼þ
+                    // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
                     TriggerStateChanged();
                 }
                 break;
             case State.Burned:
-                // ÉÕ½¹×´Ì¬£º½ø¶ÈÌõ¹éÁã
+                // ï¿½Õ½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 TriggerProgressChanged(0f);
                 break;
         }
@@ -109,21 +107,21 @@ public class StoveCounter : BaseCounter, IHasProgress
     {
         if (!HasKitchenObject())
         {
-            // Â¯ÔîÎÞÎïÆ·£¬Íæ¼ÒÐ¯´øÎïÆ·Ê±
+            // Â¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½Ð¯ï¿½ï¿½ï¿½ï¿½Æ·Ê±
             if (player.HasKitchenObject())
             {
                 KitchenObjectSO playerObjectSO = player.GetKitchenObject().GetKitchenObjectSO();
                 if (HasRecipeWithInput(playerObjectSO))
                 {
-                    // ·ÅÈë¿ÉÓÍÕ¨µÄÎïÆ·
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½Æ·
                     player.GetKitchenObject().SetKitchenObjectParent(this);
                     fryingRecipeSO = GetFryingRecipeSOWithInput(playerObjectSO);
 
-                    // ÇÐ»»µ½ÓÍÕ¨×´Ì¬
+                    // ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨×´Ì¬
                     state = State.Frying;
                     fryingTimer = 0f;
 
-                    // ´¥·¢×´Ì¬ºÍ½ø¶È±ä¸ü£¨³õÊ¼½ø¶È0£©
+                    // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½Í½ï¿½ï¿½È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½
                     TriggerStateChanged();
                     TriggerProgressChanged(0f);
                 }
@@ -131,29 +129,29 @@ public class StoveCounter : BaseCounter, IHasProgress
         }
         else
         {
-            // Â¯ÔîÓÐÎïÆ·£¬Íæ¼Ò¿ÕÊÖÊ±È¡×ß
+            // Â¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½Ò¿ï¿½ï¿½ï¿½Ê±È¡ï¿½ï¿½
             if (!player.HasKitchenObject())
             {
                 GetKitchenObject().SetKitchenObjectParent(player);
                 state = State.Idle;
 
-                // ´¥·¢×´Ì¬ºÍ½ø¶È±ä¸ü£¨½ø¶È0£©
+                // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½Í½ï¿½ï¿½È±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½
                 TriggerStateChanged();
                 TriggerProgressChanged(0f);
             }
         }
     }
 
-    // ·â×°£º´¥·¢½ø¶È±ä¸üÊÂ¼þ£¨¿ÕÖµ±£»¤£©
+    // ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private void TriggerProgressChanged(float progressNormalized)
     {
         OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
         {
-            progressNormalized = Mathf.Clamp01(progressNormalized) // È·±£½ø¶ÈÔÚ0~1Ö®¼ä
+            progressNormalized = Mathf.Clamp01(progressNormalized) // È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0~1Ö®ï¿½ï¿½
         });
     }
 
-    // ·â×°£º´¥·¢×´Ì¬±ä¸üÊÂ¼þ£¨¿ÕÖµ±£»¤£©
+    // ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private void TriggerStateChanged()
     {
         OnStateChanged?.Invoke(this, new OnStateChangedEventArgs
@@ -170,7 +168,7 @@ public class StoveCounter : BaseCounter, IHasProgress
     private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)
     {
         FryingRecipeSO fryingRecipeSO = GetFryingRecipeSOWithInput(inputKitchenObjectSO);
-        return fryingRecipeSO?.output; // ¿ÕÖµ¼ò»¯Ð´·¨
+        return fryingRecipeSO?.output; // ï¿½ï¿½Öµï¿½ï¿½Ð´ï¿½ï¿½
     }
 
     private FryingRecipeSO GetFryingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)
