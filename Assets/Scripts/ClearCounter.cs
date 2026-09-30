@@ -24,13 +24,25 @@ public class ClearCounter : BaseCounter
         else
         {
             //There is a KitchenObject here
+
             if (player.HasKitchenObject())
             {
                 //Player is carrying something
+
+                PlateKitchenObject plateKitchenObject =
+                    GetKitchenObject().GetComponent<PlateKitchenObject>();
+
+                if (plateKitchenObject != null)
+                {
+                    plateKitchenObject.TryAddKitchenObject(
+                        player.GetKitchenObject()
+                    );
+                }
             }
             else
             {
                 //Player is not carrying anything
+
                 GetKitchenObject().SetKitchenObjectParent(player);
             }
         }

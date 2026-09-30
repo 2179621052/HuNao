@@ -43,7 +43,10 @@ public class KitchenObject : MonoBehaviour
 
     public void DestroySelf()
     {
-        kitchenObjectParent.ClearKitchenObject();
+        if (kitchenObjectParent != null)
+        {
+            kitchenObjectParent.ClearKitchenObject();
+        }
 
         Destroy(gameObject);
     }
@@ -57,5 +60,18 @@ public class KitchenObject : MonoBehaviour
         kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
 
         return kitchenObject;
+    }
+
+    public void SetKitchenObjectContainer(Transform followTransform)
+    {
+        if (kitchenObjectParent != null)
+        {
+            kitchenObjectParent.ClearKitchenObject();
+        }
+
+        kitchenObjectParent = null;
+
+        transform.parent = followTransform;
+        transform.localPosition = Vector3.zero;
     }
 }
