@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour,IKchenObjectParent
+public class Player : MonoBehaviour, IKchenObjectParent
 {
-    public static Player instance { get; private set; }
-
+    private static readonly List<Player> players = new List<Player>();
+    public static IReadOnlyList<Player> AllPlayers => players;
 
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
@@ -26,14 +26,21 @@ public class Player : MonoBehaviour,IKchenObjectParent
 
     private void Awake()
     {
-        instance = this;
+        if (!players.Contains(this))
+        {
+            players.Add(this);
+        }
     }
-
 
     private void Start()
     {
         gameInput.OnInteractAction += GameInput_OnInteractAction;
         gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    }
+
+    private void OnDestroy()
+    {
+        players.Remove(this);
     }
 
     private void GameInput_OnInteractAction(object sender, EventArgs e)
@@ -42,7 +49,6 @@ public class Player : MonoBehaviour,IKchenObjectParent
         {
             selectedCounter.Interact(this);
         }
-
     }
 
     private void GameInput_OnInteractAlternateAction(object sender, System.EventArgs e)
@@ -51,7 +57,6 @@ public class Player : MonoBehaviour,IKchenObjectParent
         {
             selectedCounter.InteractAlternate(this);
         }
-
     }
 
     private void Update()
@@ -81,7 +86,6 @@ public class Player : MonoBehaviour,IKchenObjectParent
         {
             if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter))
             {
-                //Has ClearCounter
                 if (baseCounter != selectedCounter)
                 {
                     SetSelectedCounter(baseCounter);
@@ -96,7 +100,6 @@ public class Player : MonoBehaviour,IKchenObjectParent
         {
             SetSelectedCounter(null);
         }
-
     }
 
     private void HandleMovement()
@@ -112,34 +115,24 @@ public class Player : MonoBehaviour,IKchenObjectParent
 
         if (!canMove)
         {
-            // Cannot move towards moveDir
-            // Attempt only X movement
             Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
             canMove = moveDir.x != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
             if (canMove)
             {
-                // Can move only on the X
                 moveDir = moveDirX;
             }
             else
             {
-                // Cannot move only on the X
-                // Attempt only Z movement
                 Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
                 canMove = moveDir.z != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
 
                 if (canMove)
                 {
-                    // Can move only on the Z
                     moveDir = moveDirZ;
                 }
-                else
-                {
-                    // Cannot move in any direction
-                }
             }
-
         }
+
         if (canMove)
         {
             transform.position += moveDir * moveDistance;

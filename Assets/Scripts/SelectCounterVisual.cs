@@ -4,20 +4,47 @@ using UnityEngine;
 
 public class SelectCounterVisual : MonoBehaviour
 {
-
     [SerializeField] private BaseCounter baseCounter;
     [SerializeField] private GameObject[] visualGameObjectArray;
 
+    private readonly HashSet<Player> playersSelecting = new HashSet<Player>();
+    private readonly List<Player> subscribedPlayers = new List<Player>();
+
     private void Start()
     {
-        Player.instance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+        foreach (Player player in Player.AllPlayers)
+        {
+            player.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+            subscribedPlayers.Add(player);
+        }
+    }
 
+    private void OnDestroy()
+    {
+        foreach (Player player in subscribedPlayers)
+        {
+            if (player != null)
+            {
+                player.OnSelectedCounterChanged -= Player_OnSelectedCounterChanged;
+            }
+        }
     }
 
     private void Player_OnSelectedCounterChanged(object sender, Player.OnSelectedCounterChangedEventArgs e)
     {
-      
-        if (e.selectedCounter == baseCounter)
+        if (sender is Player player)
+        {
+            if (e.selectedCounter == baseCounter)
+            {
+                playersSelecting.Add(player);
+            }
+            else
+            {
+                playersSelecting.Remove(player);
+            }
+        }
+
+        if (playersSelecting.Count > 0)
         {
             Show();
         }
@@ -33,16 +60,13 @@ public class SelectCounterVisual : MonoBehaviour
         {
             visualGameObject.SetActive(true);
         }
-        
     }
 
     private void Hide()
     {
-
         foreach (GameObject visualGameObject in visualGameObjectArray)
         {
             visualGameObject.SetActive(false);
         }
     }
-
 }
