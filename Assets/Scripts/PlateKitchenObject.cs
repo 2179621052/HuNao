@@ -5,6 +5,8 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 {
     private List<KitchenObject> kitchenObjectList;
 
+    private KitchenObject burgerKitchenObject;
+
     [SerializeField] private KitchenObjectSO burgerSO;
     [SerializeField] private Transform burgerPoint;
 
@@ -31,15 +33,26 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 
     public bool TryAddKitchenObject(KitchenObject kitchenObject)
     {
-        Transform targetPoint =
-            GetPointForKitchenObjectSO(kitchenObject.GetKitchenObjectSO());
+        // 汉堡已经完成后，不允许继续加食材
+        if (HasBurger())
+        {
+            return false;
+        }
 
+        KitchenObjectSO kitchenObjectSO =
+            kitchenObject.GetKitchenObjectSO();
+
+        Transform targetPoint =
+            GetPointForKitchenObjectSO(kitchenObjectSO);
+
+        // 不是当前汉堡配方里的食材
         if (targetPoint == null)
         {
             return false;
         }
 
-        if (HasKitchenObjectSO(kitchenObject.GetKitchenObjectSO()))
+        // 已经有相同食材
+        if (HasKitchenObjectSO(kitchenObjectSO))
         {
             return false;
         }
@@ -48,7 +61,7 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 
         kitchenObject.SetKitchenObjectContainer(targetPoint);
 
-        Debug.Log("Plate added: " + kitchenObject.GetKitchenObjectSO().name);
+        Debug.Log("Plate added: " + kitchenObjectSO.name);
 
         CheckBurgerComplete();
 
@@ -89,16 +102,21 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 
         kitchenObjectList.Clear();
 
-        Transform burgerTransform = Instantiate(burgerSO.prefab);
+        Transform burgerTransform =
+            Instantiate(burgerSO.prefab);
 
         burgerTransform.parent = burgerPoint;
         burgerTransform.localPosition = Vector3.zero;
+
+        burgerKitchenObject =
+            burgerTransform.GetComponent<KitchenObject>();
 
         Debug.Log("Burger completed!");
     }
 
 
-    private Transform GetPointForKitchenObjectSO(KitchenObjectSO kitchenObjectSO)
+    private Transform GetPointForKitchenObjectSO(
+        KitchenObjectSO kitchenObjectSO)
     {
         if (kitchenObjectSO == breadSO)
         {
@@ -129,7 +147,8 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
     }
 
 
-    private bool HasKitchenObjectSO(KitchenObjectSO kitchenObjectSO)
+    private bool HasKitchenObjectSO(
+        KitchenObjectSO kitchenObjectSO)
     {
         foreach (KitchenObject kitchenObject in kitchenObjectList)
         {
@@ -140,6 +159,18 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
         }
 
         return false;
+    }
+
+
+    public bool HasBurger()
+    {
+        return burgerKitchenObject != null;
+    }
+
+
+    public KitchenObject GetBurgerKitchenObject()
+    {
+        return burgerKitchenObject;
     }
 
 
