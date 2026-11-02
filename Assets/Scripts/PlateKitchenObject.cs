@@ -59,6 +59,8 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 
         kitchenObjectList.Add(kitchenObject);
 
+        AudioManager.PlayObjectPickup();
+
         kitchenObject.SetKitchenObjectContainer(targetPoint);
 
         Debug.Log("Plate added: " + kitchenObjectSO.name);
@@ -95,6 +97,7 @@ public class PlateKitchenObject : MonoBehaviour, IKitchenObjectContainer
 
     private void CompleteBurger()
     {
+        AudioManager.PlayDrop();
         foreach (KitchenObject kitchenObject in kitchenObjectList)
         {
             kitchenObject.DestroySelf();

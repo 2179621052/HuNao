@@ -34,10 +34,14 @@ public class StoveCounter : BaseCounter, IHasProgress
     private FryingRecipeSO fryingRecipeSO;
     private float burningTimer;
     private BurningRecipeSO burningRecipeSO;
+    private AudioSource cookingAudioSource;
 
     private void Start()
     {
         state = State.Idle;
+        cookingAudioSource = gameObject.AddComponent<AudioSource>();
+        cookingAudioSource.playOnAwake = false;
+        cookingAudioSource.spatialBlend = 0f;
     }
 
     private void Update()
@@ -63,6 +67,7 @@ public class StoveCounter : BaseCounter, IHasProgress
 
                     Debug.Log("Fried");
                     state = State.Fried;
+                    AudioManager.StartFried(cookingAudioSource);
                     burningTimer = 0f;
                     // ��ֵ��������ȡȼ���䷽ʧ��ʱ���ݴ�
                     burningRecipeSO = GetBurningRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
@@ -90,6 +95,7 @@ public class StoveCounter : BaseCounter, IHasProgress
 
                     Debug.Log("Burned");
                     state = State.Burned;
+                    AudioManager.StopLoop(cookingAudioSource);
                     // �ս������������
                     TriggerProgressChanged(0f);
                     // ����״̬����¼�
@@ -119,6 +125,7 @@ public class StoveCounter : BaseCounter, IHasProgress
 
                     // �л�����ը״̬
                     state = State.Frying;
+                    AudioManager.StartFrying(cookingAudioSource);
                     fryingTimer = 0f;
 
                     // ����״̬�ͽ��ȱ������ʼ����0��
@@ -134,6 +141,7 @@ public class StoveCounter : BaseCounter, IHasProgress
             {
                 GetKitchenObject().SetKitchenObjectParent(player);
                 state = State.Idle;
+                AudioManager.StopLoop(cookingAudioSource);
 
                 // ����״̬�ͽ��ȱ��������0��
                 TriggerStateChanged();
@@ -194,4 +202,7 @@ public class StoveCounter : BaseCounter, IHasProgress
         }
         return null;
     }
+
+    private void OnDisable() { AudioManager.StopLoop(cookingAudioSource); }
+    private void OnDestroy() { AudioManager.StopLoop(cookingAudioSource); }
 }

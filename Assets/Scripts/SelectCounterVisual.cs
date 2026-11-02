@@ -6,6 +6,7 @@ public class SelectCounterVisual : MonoBehaviour
 {
     [SerializeField] private BaseCounter baseCounter;
     [SerializeField] private GameObject[] visualGameObjectArray;
+    [SerializeField] private bool keepVisualsVisible;
     [SerializeField] private Color highlightColor = new Color(1f, 0.45f, 0.05f, 1f);
     [SerializeField, Range(0f, 1f)] private float highlightStrength = 0.55f;
 
@@ -19,6 +20,12 @@ public class SelectCounterVisual : MonoBehaviour
 
     private void Awake()
     {
+        // TomatoSoupCounter uses its normal model as the highlight target. Keep that model
+        // active and use only the MaterialPropertyBlock color override for selection.
+        if (GetComponent<TomatoSoupCounter>() != null)
+        {
+            keepVisualsVisible = true;
+        }
         CacheSelectedRenderers();
     }
 
@@ -68,9 +75,12 @@ public class SelectCounterVisual : MonoBehaviour
 
     private void Show()
     {
-        foreach (GameObject visualGameObject in visualGameObjectArray)
+        if (!keepVisualsVisible)
         {
-            visualGameObject.SetActive(true);
+            foreach (GameObject visualGameObject in visualGameObjectArray)
+            {
+                if (visualGameObject != null) visualGameObject.SetActive(true);
+            }
         }
 
         ApplyHighlight();
@@ -79,14 +89,31 @@ public class SelectCounterVisual : MonoBehaviour
     private void Hide()
     {
         RestoreOriginalMaterials();
-        foreach (GameObject visualGameObject in visualGameObjectArray)
+        if (!keepVisualsVisible)
         {
-            visualGameObject.SetActive(false);
+            foreach (GameObject visualGameObject in visualGameObjectArray)
+            {
+                if (visualGameObject != null) visualGameObject.SetActive(false);
+            }
         }
     }
 
     private void CacheSelectedRenderers()
     {
+        if (GetComponent<TomatoSoupCounter>() != null)
+        {
+            HashSet<Renderer> soupRenderers = new HashSet<Renderer>();
+            foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null) continue;
+                if (renderer.GetComponentInParent<ParticleSystem>() != null) continue;
+                if (renderer.GetComponentInParent<ProgressBarUI>() != null) continue;
+                soupRenderers.Add(renderer);
+            }
+            selectedRenderers.AddRange(soupRenderers);
+            return;
+        }
+
         if (visualGameObjectArray == null) return;
 
         HashSet<Renderer> uniqueRenderers = new HashSet<Renderer>();
@@ -102,18 +129,26 @@ public class SelectCounterVisual : MonoBehaviour
 
     private void ApplyHighlight()
     {
-        originalPropertyBlocks.Clear();
-
         foreach (Renderer renderer in selectedRenderers)
         {
             if (renderer == null) continue;
 
+            // Capture the block only once per selection cycle. If Show is called again
+            // while another player is still selecting, the current block may already
+            // contain the highlight and must not replace the original state.
+            if (!originalPropertyBlocks.ContainsKey(renderer))
+            {
+                MaterialPropertyBlock original = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(original);
+                originalPropertyBlocks.Add(renderer, original);
+            }
+
             MaterialPropertyBlock block = new MaterialPropertyBlock();
             renderer.GetPropertyBlock(block);
-            originalPropertyBlocks[renderer] = block;
 
             Material[] materials = renderer.sharedMaterials;
             bool hasSupportedColor = false;
+            bool isTomatoSoupSurface = renderer.name == "TomatoSoupSurface";
             for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
             {
                 Material material = materials[materialIndex];
@@ -122,17 +157,21 @@ public class SelectCounterVisual : MonoBehaviour
                 if (material.HasProperty(BaseColorId))
                 {
                     Color original = material.GetColor(BaseColorId);
-                    block.SetColor(BaseColorId, Color.Lerp(original, highlightColor, highlightStrength));
+                    Color target = isTomatoSoupSurface ? new Color(1f, 0.16f, 0.04f, 1f) : highlightColor;
+                    float strength = isTomatoSoupSurface ? highlightStrength * 0.3f : highlightStrength;
+                    block.SetColor(BaseColorId, Color.Lerp(original, target, strength));
                     hasSupportedColor = true;
                 }
                 else if (material.HasProperty(ColorId))
                 {
                     Color original = material.GetColor(ColorId);
-                    block.SetColor(ColorId, Color.Lerp(original, highlightColor, highlightStrength));
+                    Color target = isTomatoSoupSurface ? new Color(1f, 0.16f, 0.04f, 1f) : highlightColor;
+                    float strength = isTomatoSoupSurface ? highlightStrength * 0.3f : highlightStrength;
+                    block.SetColor(ColorId, Color.Lerp(original, target, strength));
                     hasSupportedColor = true;
                 }
 
-                if (material.HasProperty(EmissionColorId))
+                if (!isTomatoSoupSurface && material.HasProperty(EmissionColorId))
                 {
                     block.SetColor(EmissionColorId, highlightColor * 0.18f);
                 }

@@ -47,7 +47,9 @@ public class ProgressBarUI : MonoBehaviour
         barImage.fillAmount = e.progressNormalized;
 
         // 根据进度显示/隐藏进度条
-        if (Mathf.Approximately(e.progressNormalized, 0f) || Mathf.Approximately(e.progressNormalized, 1f))
+        if (Mathf.Approximately(e.progressNormalized, 0f) ||
+            (Mathf.Approximately(e.progressNormalized, 1f) &&
+             !(hasProgress is IKeepCompletedProgressVisible keepVisible && keepVisible.KeepCompletedProgressVisible)))
         {
             Hide();
         }

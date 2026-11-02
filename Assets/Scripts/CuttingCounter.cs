@@ -66,6 +66,8 @@ public class CuttingCounter : BaseCounter,IHasProgress
             //There is a KitchenObject here And it can be cut
             cuttingProgress++;
 
+            AudioManager.PlayChop();
+
             OnCut?.Invoke(this, EventArgs.Empty);
 
             CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());

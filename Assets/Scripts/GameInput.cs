@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class GameInput : MonoBehaviour
 {
+    public static bool GameplayInputEnabled { get; set; } = true;
     public event EventHandler OnInteractAction;
     public event EventHandler OnInteractAlternateAction;
 
@@ -51,16 +52,19 @@ public class GameInput : MonoBehaviour
 
     private void InteractAlternate_performed(InputAction.CallbackContext obj)
     {
+        if (!GameplayInputEnabled) return;
         OnInteractAlternateAction?.Invoke(this, EventArgs.Empty);
     }
 
     private void Interact_performed(InputAction.CallbackContext obj)
     {
+        if (!GameplayInputEnabled) return;
         OnInteractAction?.Invoke(this, EventArgs.Empty);
     }
 
     public Vector2 GetMovementVectorNormalized()
     {
+        if (!GameplayInputEnabled) return Vector2.zero;
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
         return inputVector.normalized;
     }

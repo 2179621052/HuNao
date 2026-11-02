@@ -9,6 +9,7 @@ public class TrashCounter : BaseCounter
         if (player.HasKitchenObject())
         {
             player.GetKitchenObject().DestroySelf();
+            AudioManager.PlayDeliveryFail();
         }
     }
 }
