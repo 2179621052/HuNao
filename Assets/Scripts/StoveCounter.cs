@@ -137,6 +137,7 @@ public class StoveCounter : BaseCounter, IHasProgress
         else
         {
             // ¯������Ʒ����ҿ���ʱȡ��
+            if (TryCollectToPlate(player)) return;
             if (!player.HasKitchenObject())
             {
                 GetKitchenObject().SetKitchenObjectParent(player);
@@ -201,6 +202,17 @@ public class StoveCounter : BaseCounter, IHasProgress
             }
         }
         return null;
+    }
+
+    private bool TryCollectToPlate(Player player)
+    {
+        if (!player.HasKitchenObject() || state != State.Fried) return false;
+        var plate = player.GetKitchenObject().GetComponent<PlateKitchenObject>();
+        if (plate == null) return false;
+        var fried = GetKitchenObject();
+        if (!plate.TryAddKitchenObject(fried)) return false;
+        state = State.Idle; fryingTimer = 0f; burningTimer = 0f; fryingRecipeSO = null; burningRecipeSO = null;
+        AudioManager.StopLoop(cookingAudioSource); TriggerStateChanged(); TriggerProgressChanged(0f); return true;
     }
 
     private void OnDisable() { AudioManager.StopLoop(cookingAudioSource); }

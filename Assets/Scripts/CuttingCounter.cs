@@ -12,6 +12,7 @@ public class CuttingCounter : BaseCounter,IHasProgress
     [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
 
     private int cuttingProgress;
+    private bool cuttingComplete;
 
     public override void Interact(Player player)
     {
@@ -25,6 +26,7 @@ public class CuttingCounter : BaseCounter,IHasProgress
                     //Player carrying someing that can be Cut
                     player.GetKitchenObject().SetKitchenObjectParent(this);
                     cuttingProgress = 0;
+                    cuttingComplete = false;
 
                     CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
 
@@ -44,13 +46,28 @@ public class CuttingCounter : BaseCounter,IHasProgress
             //There is a KitchenObject here
             if (player.HasKitchenObject())
             {
-                //Player is carrying something
+                PlateKitchenObject playerPlate = player.GetKitchenObject().GetComponent<PlateKitchenObject>();
+                if (playerPlate != null && cuttingComplete)
+                {
+                    KitchenObject cutKitchenObject = GetKitchenObject();
+                    if (playerPlate.TryAddKitchenObject(cutKitchenObject))
+                    {
+                        cuttingComplete = false;
+                        cuttingProgress = 0;
+                        OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
+                        {
+                            progressNormalized = 0f
+                        });
+                        return;
+                    }
+                }
             }
             else
             {
                 //Player is not carrying anything
                 GetKitchenObject().SetKitchenObjectParent(player);
                 cuttingProgress = 0;
+                cuttingComplete = false;
                 OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
                 {
                     progressNormalized = 0f
@@ -85,6 +102,7 @@ public class CuttingCounter : BaseCounter,IHasProgress
 
            
                 KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+                cuttingComplete = true;
             }
         }
     }

@@ -29,6 +29,17 @@ public class ClearCounter : BaseCounter
             {
                 //Player is carrying something
 
+                PlateKitchenObject playerPlateKitchenObject =
+                    player.GetKitchenObject().GetComponent<PlateKitchenObject>();
+                if (playerPlateKitchenObject != null)
+                {
+                    KitchenObject counterKitchenObject = GetKitchenObject();
+                    if (playerPlateKitchenObject.TryAddKitchenObject(counterKitchenObject))
+                    {
+                        return;
+                    }
+                }
+
                 PlateKitchenObject plateKitchenObject =
                     GetKitchenObject().GetComponent<PlateKitchenObject>();
 

@@ -2558,8 +2558,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelNumber: 3
-  targetTimeSeconds: 150
-  targetMoney: 500
+  targetTimeSeconds: 90
+  targetMoney: 450
   levelStartUI: {fileID: 659228373}
   remainingTimeText: {fileID: 1835456328}
   targetMoneyText: {fileID: 391153804}
